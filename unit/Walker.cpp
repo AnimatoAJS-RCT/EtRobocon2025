@@ -6,7 +6,9 @@
  *  Modifier: Yuki Tsuchitoi
  *  Copyright (c) 2025 Embedded Technology Software Design Robot Contest
  *****************************************************************************/
-
+/**
+ * こんにちは
+ */
 #include "Walker.h"
 #include <stdio.h>
 
