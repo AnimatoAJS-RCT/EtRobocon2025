@@ -20,6 +20,7 @@ public:
 
     void init();
     void run();
+    void stop();
     void setTurn(float turn);
     void setPwm(int pwm);
 

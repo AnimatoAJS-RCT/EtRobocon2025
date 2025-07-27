@@ -72,7 +72,7 @@ double Pid::calculatePid(double diff, double delta)
     {
       difference = cov / varX / delta;
     }
-    printf("%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", sumX, sumY, sumProd, aveX, aveY, cov, varX, difference);
+    //printf("%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\t%lf\n", sumX, sumY, sumProd, aveX, aveY, cov, varX, difference);
   }
 
   // P制御の計算を行う

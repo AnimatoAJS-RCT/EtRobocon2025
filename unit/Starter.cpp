@@ -9,20 +9,23 @@
 
 #include "Starter.h"
 
+#include <stdio.h>
+
 /**
  * コンストラクタ
  * @param forceSensor フォースセンサ
  */
-Starter::Starter(const spikeapi::ForceSensor& forceSensor)
-    : mForceSensor(forceSensor) {
-}
+Starter::Starter(const spikeapi::ForceSensor& forceSensor) : mForceSensor(forceSensor) {}
 
 /**
  * 押下中か否か
  * @retval true  押下している
  * @retval false 押下していない
  */
-bool Starter::isPushed() const {
-    //return mForceSensor.isTouched(); // <1>
-    return true;
+bool Starter::isPushed() const
+{
+    bool pushed = mForceSensor.isTouched();
+    printf("Starter::isPushed(): %s\n", pushed ? "true" : "false");
+    return pushed;  // <1>
+    // return true;
 }

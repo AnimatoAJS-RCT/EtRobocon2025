@@ -18,16 +18,14 @@ const int LineTracer::bias = 0;
  * @param lineMonitor     ライン判定
  * @param walker 走行
  */
-LineTracer::LineTracer(const LineMonitor *lineMonitor,
-                       Walker *walker,
-                       bool isLeftEdge,
-                       PidGain *pidGain)
-    : mLineMonitor(lineMonitor),
-      mWalker(walker),
-      mIsLeftEdge(isLeftEdge),
-      mPidGain(pidGain),
-      mIsInitialized(false),
-      mPid(pidGain, 2)
+LineTracer::LineTracer(const LineMonitor* lineMonitor, Walker* walker, bool isLeftEdge,
+                       PidGain* pidGain)
+  : mLineMonitor(lineMonitor),
+    mWalker(walker),
+    mIsLeftEdge(isLeftEdge),
+    mPidGain(pidGain),
+    mIsInitialized(false),
+    mPid(pidGain, 2)
 {
 }
 
@@ -36,20 +34,22 @@ LineTracer::LineTracer(const LineMonitor *lineMonitor,
  */
 void LineTracer::run()
 {
-  if (mIsInitialized == false)
-  {
-    mWalker->init();
-    mIsInitialized = true;
-  }
-
-  int diffReflection = mLineMonitor->calDiffReflection();
-
-  // 走行体の操作量を計算する
-  float turn = calcPropValue(diffReflection);
-  mWalker->setTurn(turn);
-
-  // 走行を行う
-  mWalker->run();
+    switch(mState) {
+        case UNDEFINED:
+            execUndefined();
+            break;
+        case WAITING_FOR_START:
+            execWaitingForStart();
+            break;
+        case WALKING:
+            execWalking();
+            break;
+        case TERMINATED:
+            // 何もしない
+            break;
+        default:
+            break;
+    }
 }
 
 /**
@@ -58,8 +58,65 @@ void LineTracer::run()
  */
 float LineTracer::calcPropValue(int diffBrightness)
 {
-  // float turn = LineTracer::Kp * diffBrightness + LineTracer::bias;
-  double d = mPid.calculatePid(diffBrightness);
-  float turn = d;
-  return turn;
+    // float turn = LineTracer::Kp * diffBrightness + LineTracer::bias;
+    double d = mPid.calculatePid(diffBrightness);
+    float turn = d;
+    return turn;
+}
+
+/**
+ * 未定義状態の処理
+ */
+void LineTracer::execUndefined()
+{
+    if(mIsInitialized == false) {
+        mWalker->init();
+        mIsInitialized = true;
+    }
+    mState = WAITING_FOR_START;
+}
+
+/**
+ * 開始待ち状態の処理
+ */
+void LineTracer::execWaitingForStart()
+{
+    // 開始条件を満たしているか確認する
+    if(mStarterList.empty()) {
+        // 開始条件を満たした場合の処理
+        mState = WALKING;
+        return;
+    }
+    for(auto starter : mStarterList) {
+        if(starter->isPushed()) {
+            // 開始条件を満たした場合の処理
+            mState = WALKING;
+            return;
+        }
+    }
+}
+
+/**
+ * 走行中状態の処理
+ */
+void LineTracer::execWalking()
+{
+    int diffReflection = mLineMonitor->calDiffReflection();
+
+    // 走行体の操作量を計算する
+    float turn = calcPropValue(diffReflection);
+    mWalker->setTurn(turn);
+
+    // 走行を行う
+    mWalker->run();
+
+    // 終了条件を満たしているか確認する
+    for(auto terminator : mTerminatorList) {
+        if(terminator->isToBeTerminate()) {
+            // 終了条件を満たした場合の処理
+            mWalker->stop();
+            mState = TERMINATED;
+            return;
+        }
+    }
 }

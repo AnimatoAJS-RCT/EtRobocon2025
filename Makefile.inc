@@ -1,14 +1,8 @@
 mkfile_path := $(dir $(lastword $(MAKEFILE_LIST)))
 
-APPL_CXXOBJS += \
-	Walker.o \
-	LineMonitor.o \
-	Starter.o \
-	Tracer.o \
-	LineTracer.o \
-	LineTracerWithStarter.o \
-	Pid.o \
-	Util.o
+# Shellスクリプトで、app,unitディレクトリ中のソースコード名をオブジェクトファイル名に変換している
+APPL_CXXOBJS += $(shell ls ${mkfile_path}unit/*.cpp | sed -r 's/.*\/(.*)\.cpp/\1.o/g')
+APPL_CXXOBJS += $(shell ls ${mkfile_path}app/*.cpp | sed -r 's/.*\/(.*)\.cpp/\1.o/g')
 
 SRCLANG := c++
 
@@ -22,5 +16,5 @@ endif
 APPL_DIRS += $(mkfile_path)app $(mkfile_path)unit
 
 INCLUDES += \
-	-I$(mkfile_path)app \
-	-I$(mkfile_path)unit
+    -I$(mkfile_path)app \
+    -I$(mkfile_path)unit

@@ -15,11 +15,8 @@
  * @param leftWheel  左モータ
  * @param rightWheel 右モータ
  */
-Walker::Walker(spikeapi::Motor &leftWheel,
-               spikeapi::Motor &rightWheel)
-    : mLeftWheel(leftWheel),
-      mRightWheel(rightWheel),
-      mTurn(0)
+Walker::Walker(spikeapi::Motor& leftWheel, spikeapi::Motor& rightWheel)
+  : mLeftWheel(leftWheel), mRightWheel(rightWheel), mTurn(0)
 {
 }
 
@@ -32,6 +29,16 @@ void Walker::run()
     // printf("pwm:%d, mTurn:%d\n", pwm, mTurn);
     mLeftWheel.setPower(mPwm - mTurn);
     mRightWheel.setPower(mPwm + mTurn);
+}
+
+/**
+ * 走行を停止する
+ */
+void Walker::stop()
+{
+    // 左右モータを停止する
+    mLeftWheel.stop();
+    mRightWheel.stop();
 }
 
 /**

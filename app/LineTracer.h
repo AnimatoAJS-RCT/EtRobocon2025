@@ -47,6 +47,10 @@ private:
     Pid mPid;
 
     float calcPropValue(int diffReflection);
+
+    void execUndefined();
+    void execWaitingForStart();
+    void execWalking();
 };
 
 #endif // ETTR_APP_LINETRACER_H_
