@@ -55,35 +55,25 @@ void generateTracerList()
     // iniファイル読み込み
     int pwm, maxPwm;
     double p, i, d;
-    char iniPath[512];
-    getcwd(iniPath, 512);  // カレントディレクトリ取得
-    // strcpy(iniPath, "/home/ajspi/work/RasPike-ART/sdk/workspace");
 
-    if(IS_LEFT_COURSE) {
-        strcat(iniPath, "/tracer_2025_left.ini");  // カレントディレクトリ配下のiniを指定
-    } else {
-        strcat(iniPath, "/tracer_2025_right.ini");  // カレントディレクトリ配下のiniを指定
-    }
-
-    printf("tracer.ini読み取り:%s\n", iniPath);
-    FILE* file;
-    file = fopen(iniPath, "r");  // ファイル読み込み
-    char line[512];
+    // シミュレーター環境でファイルを読み込めないため固定文字列で設定値を読み込む
+    const char* lines[] = {
+        "LineTracer 1000 50 60 80 LEFT_EDGE 0.7 0.1 0.6 BLUE",
+        "#end"
+    };
     char* spl[16];
     size_t result_size;
-
+    int idx = 0;
     // 1行ずつ値を読み取り使用
-    fgets(line, 512, file);
-    line[strlen(line) - 1] = '\0';  // 改行まで読み込んでいるので末尾を削除（終端文字に変更）
-    while(strcmp(line, "#end") != 0) {
+    strcpy((char*)spl, lines[idx]);
+    while(strcmp(lines[idx], "#end") != 0) {
         // printf("readini: a%sa, %d\n", line, strcmp(line, "#end"));
-        if(line[0] == '#') {
-            fgets(line, 512, file);
-            line[strlen(line) - 1] = '\0';
+        if(lines[idx][0] == '#') {
+            idx++;
             continue;
         }
 
-        result_size = split(line, " ", spl, SIZE_OF_ARRAY(spl));
+        result_size = split((char*)lines[idx], " ", spl, SIZE_OF_ARRAY(spl));
         for(size_t i = 0; i < result_size; ++i) {
             printf("%zu: %s\n", i, spl[i]);
         }
@@ -243,10 +233,8 @@ void generateTracerList()
         else {
             // Tracer名にマッチしなかったらなにもしない
         }
-        fgets(line, 512, file);
-        line[strlen(line) - 1] = '\0';
+        idx++;
     }
-    fclose(file);  // ファイルを閉じる
 }
 
 /**
