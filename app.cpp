@@ -317,7 +317,9 @@ void tracer_task(intptr_t exinf)
     if(button.isLeftPressed()) {
         wup_tsk(MAIN_TASK);  // レフトボタン押下
     } else {
-        tracerList.front()->run();
+        if(!tracerList.empty() && tracerList.front() != nullptr) {
+            tracerList.front()->run();
+        }
         // TODO:terminateしたら次のTracerに行くようにする
     }
 

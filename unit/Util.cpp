@@ -19,21 +19,24 @@
 */
 size_t split(char* s, const char* separator, char** result, size_t result_size)
 {
-  assert(s != NULL);
-  assert(separator != NULL);
-  assert(result != NULL);
-  assert(result_size > 0);
+    assert(s != NULL);
+    assert(separator != NULL);
+    assert(result != NULL);
+    assert(result_size > 0);
+    size_t i = 0;
 
-  size_t i = 0;
+    // sがリテラルやconstの場合に備え、strtok用の一時バッファを用意
+    char tmp[512];
+    strncpy(tmp, s, sizeof(tmp));
+    tmp[sizeof(tmp) - 1] = '\0';
+    char* p = strtok(tmp, separator);
+    while(p != NULL) {
+        assert(i < result_size);
+        result[i] = p;
+        ++i;
 
-  char* p = strtok(s, separator);
-  while (p != NULL) {
-    assert(i < result_size);
-    result[i] = p;
-    ++i;
+        p = strtok(NULL, separator);
+    }
 
-    p = strtok(NULL, separator);
-  }
-
-  return i;
+    return i;
 }
