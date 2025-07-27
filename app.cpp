@@ -59,6 +59,7 @@ void generateTracerList()
     // シミュレーター環境でファイルを読み込めないため固定文字列で設定値を読み込む
     const char* lines[] = {
         "LineTracer 1000 50 60 80 LEFT_EDGE 0.7 0.1 0.6 BLUE",
+        "LineTracer 1000 50 60 80 LEFT_EDGE 0.7 0.1 0.6 BLUE",
         "#end"
     };
     char* spl[16];
