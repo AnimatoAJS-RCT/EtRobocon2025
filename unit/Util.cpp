@@ -17,6 +17,7 @@
     戻り値
         分割後の文字列の個数
 */
+/*
 size_t split(char* s, const char* separator, char** result, size_t result_size)
 {
     assert(s != NULL);
@@ -39,4 +40,16 @@ size_t split(char* s, const char* separator, char** result, size_t result_size)
     }
 
     return i;
+}
+*/
+
+
+std::vector<std::string> split(const std::string& s, const std::string& delimiter) {
+    std::vector<std::string> result;
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delimiter[0])) {
+        result.push_back(item);
+    }
+    return result;
 }
