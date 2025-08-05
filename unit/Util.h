@@ -1,11 +1,9 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <assert.h>
+#include <vector>
+#include <string>
+#include <sstream>
 
 
 /*
@@ -25,6 +23,7 @@
     戻り値
         分割後の文字列の個数
 */
-size_t split(char* s, const char* separator, char** result, size_t result_size);
+//size_t split(char* s, const char* separator, char** result, size_t result_size);
+std::vector<std::string> split(const std::string& s, const std::string& separator);
 
 #endif // UTILITY_H

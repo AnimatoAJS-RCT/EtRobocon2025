@@ -25,6 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
+#include <string>
 
 #define SIZE_OF_ARRAY(array) (sizeof(array) / sizeof(array[0]))
 
@@ -57,56 +58,57 @@ void generateTracerList()
     double p, i, d;
 
     // シミュレーター環境でファイルを読み込めないため固定文字列で設定値を読み込む
-    const char* lines[] = {
+    const std::string lines[] = {
         "LineTracer 1000 50 60 80 LEFT_EDGE 0.7 0.1 0.6 BLUE",
         "LineTracer 1000 50 60 80 LEFT_EDGE 0.7 0.1 0.6 BLUE",
         "#end"
     };
-    char* spl[16];
+    std::vector<std::string> spl;
     size_t result_size;
     int idx = 0;
     // 1行ずつ値を読み取り使用
-    strcpy((char*)spl, lines[idx]);
-    while(strcmp(lines[idx], "#end") != 0) {
-        // printf("readini: a%sa, %d\n", line, strcmp(line, "#end"));
+    // strcpy((char*)spl, lines[idx]);
+    while(lines[idx]!="#end") {
+        printf("readini: %s\n", lines[idx].c_str());
         if(lines[idx][0] == '#') {
             idx++;
             continue;
         }
 
-        result_size = split((char*)lines[idx], " ", spl, SIZE_OF_ARRAY(spl));
+        spl = split(lines[idx], " ");
+        result_size = spl.size();
         for(size_t i = 0; i < result_size; ++i) {
-            printf("%zu: %s\n", i, spl[i]);
+            printf("%zu: %s\n", i, spl[i].c_str());
         }
         printf("\n");
 
-        if(strcmp(spl[0], "ScenarioTracer") == 0) {
+        if(spl[0] == "ScenarioTracer") {
             // TODO:ScenarioTracer生成
             //            double targetDistance;
             //            int leftPwm, rightPwm;
-            //            targetDistance = atof(spl[1]);
-            //            leftPwm = atoi(spl[2]);
-            //            rightPwm = atoi(spl[3]);
+            //            targetDistance = atof(spl[1].c_str());
+            //            leftPwm = atof(spl[2].c_str());
+            //            rightPwm = atof(spl[3].c_str());
             //            if (result_size >= 5)
             //            {
             //                colorid_t stopColor;
-            //                if (strcmp(spl[4], "BLACK") == 0)
+            //                if (spl[4] == "BLACK")
             //                {
             //                    stopColor = colorid_t::COLOR_BLACK;
             //                }
-            //                else if (strcmp(spl[9], "BLUE") == 0)
+            //                else if (spl[9] == "BLUE")
             //                {
             //                    stopColor = colorid_t::COLOR_BLUE;
             //                }
-            //                else if (strcmp(spl[9], "RED") == 0)
+            //                else if (spl[9] == "RED")
             //                {
             //                    stopColor = colorid_t::COLOR_RED;
             //                }
-            //                else if (strcmp(spl[9], "GREEN") == 0)
+            //                else if (spl[9] == "GREEN")
             //                {
             //                    stopColor = colorid_t::COLOR_GREEN;
             //                }
-            //                else if (strcmp(spl[9], "YELLOW") == 0)
+            //                else if (spl[9] == "YELLOW")
             //                {
             //                    stopColor = colorid_t::COLOR_YELLOW;
             //                }
@@ -120,20 +122,20 @@ void generateTracerList()
             //                rightPwm); courseList.push_back(new ScenarioTracer(targetDistance,
             //                leftPwm, rightPwm));
             //            }
-        } else if(strcmp(spl[0], "LineTracer") == 0) {
-            //TODO:targetDistanceでのterminateを実装
+        } else if(spl[0] == "LineTracer") {
+            // TODO:targetDistanceでのterminateを実装
             double targetDistance, p, i, d;
             int targetBrightness, pwm, maxPwm;
             bool isLeftEdge;
             PidGain* pidGain;
-            targetDistance = atof(spl[1]);
-            targetBrightness = atoi(spl[2]);
-            pwm = atoi(spl[3]);
-            maxPwm = atoi(spl[4]);
-            isLeftEdge = (strcmp(spl[5], "LEFT_EDGE") == 0);
-            p = atof(spl[6]);
-            i = atof(spl[7]);
-            d = atof(spl[8]);
+            targetDistance = atof(spl[1].c_str());
+            targetBrightness = atof(spl[2].c_str());
+            pwm = atof(spl[3].c_str());
+            maxPwm = atof(spl[4].c_str());
+            isLeftEdge = (spl[5] == "LEFT_EDGE");
+            p = atof(spl[6].c_str());
+            i = atof(spl[7].c_str());
+            d = atof(spl[8].c_str());
             // printf("LineTracer(%lf, %d, %d, %d, %s, PidGain(%lf, %lf, %lf)): push\n",
             // targetDistance, targetBrightness, pwm, maxPwm, isLeftEdge ? "LEFT_EDGE" :
             // "RIGHT_EDGE", p, i, d);
@@ -144,25 +146,26 @@ void generateTracerList()
             if(result_size >= 10) {
                 // 色で停止
                 uint16_t stopColor;
-                if(strcmp(spl[9], "BLUE") == 0) {
+                if(spl[9] == "BLUE") {
                     stopColor = PBIO_COLOR_HUE_BLUE;
-                } else if(strcmp(spl[9], "RED") == 0) {
+                } else if(spl[9] == "RED") {
                     stopColor = PBIO_COLOR_HUE_RED;
-                } else if(strcmp(spl[9], "GREEN") == 0) {
+                } else if(spl[9] == "GREEN") {
                     stopColor = PBIO_COLOR_HUE_GREEN;
-                } else if(strcmp(spl[9], "YELLOW") == 0) {
+                } else if(spl[9] == "YELLOW") {
                     stopColor = PBIO_COLOR_HUE_YELLOW;
                 }
+                printf("stopColor: %u\n", stopColor);
                 gColorTerminator = new ColorTerminator(&gColorSensor, stopColor);
                 gLineTracer->addTerminator(gColorTerminator);
             }
             tracerList.push_back(gLineTracer);
         }
         // TODO:難所トレーサーの実装
-        //        else if (strcmp(spl[0], "RotateTracer") == 0)
+        //        else if (spl[0] == "RotateTracer")
         //        {
         //            int direction, degree, pwm;
-        //            if (strcmp(spl[1], "TURN_RIGHT") == 0)
+        //            if (spl[1] == "TURN_RIGHT")
         //            { // ^ (!IS_LEFT_COURSE)){
         //                direction = 1;
         //            }
@@ -170,7 +173,7 @@ void generateTracerList()
         //            {
         //                direction = -1;
         //            }
-        //            if (strcmp(spl[1], "TURN_LEFT") == 0)
+        //            if (spl[1] == "TURN_LEFT")
         //            { // ^ (!IS_LEFT_COURSE)){
         //                direction = -1;
         //            }
@@ -178,10 +181,10 @@ void generateTracerList()
         //            {
         //                direction = 1;
         //            }
-        //            degree = atoi(spl[2]);
+        //            degree = atof(spl[2].c_str());
         //            if (result_size >= 4)
         //            {
-        //                pwm = atoi(spl[3]);
+        //                pwm = atof(spl[3].c_str());
         //                printf("RotateTracer(%d, %d, %d): push\n", direction, degree, pwm);
         //                courseList.push_back(new RotateTracer(direction, degree, pwm));
         //            }
@@ -191,10 +194,10 @@ void generateTracerList()
         //                courseList.push_back(new RotateTracer(direction, degree));
         //            }
         //        }
-        //        else if (strcmp(spl[0], "DifficultScenarioTracer") == 0)
+        //        else if (spl[0] == "DifficultScenarioTracer")
         //        {
         //            int direction, maxTimer, maxCnt;
-        //            if ((strcmp(spl[1], "TURN_RIGHT") == 0))
+        //            if ((spl[1] == "TURN_RIGHT"))
         //            { // ^ (!IS_LEFT_COURSE)){
         //                direction = 1;
         //            }
@@ -202,7 +205,7 @@ void generateTracerList()
         //            {
         //                direction = -1;
         //            }
-        //            if ((strcmp(spl[1], "TURN_LEFT") == 0))
+        //            if ((spl[1] == "TURN_LEFT"))
         //            { // ^ (!IS_LEFT_COURSE)){
         //                direction = -1;
         //            }
@@ -213,14 +216,14 @@ void generateTracerList()
         //
         //            if (result_size == 3)
         //            {
-        //                maxTimer = atoi(spl[2]);
+        //                maxTimer = atof(spl[2].c_str());
         //                printf("DifficultScenarioTracer(%d, %d): push\n", direction, maxTimer);
         //                courseList.push_back(new DifficultScenarioTracer(direction, maxTimer));
         //            }
         //            else if (result_size == 4)
         //            {
-        //                maxTimer = atoi(spl[2]);
-        //                maxCnt = atoi(spl[3]);
+        //                maxTimer = atof(spl[2].c_str());
+        //                maxCnt = atof(spl[3].c_str());
         //                printf("DifficultScenarioTracer(%d, %d, %d): push\n", direction, maxTimer,
         //                maxCnt); courseList.push_back(new DifficultScenarioTracer(direction,
         //                maxTimer, maxCnt));
@@ -244,7 +247,7 @@ void generateTracerList()
 static void user_system_create()
 {
     // コース設定
-    IS_LEFT_COURSE = true;
+    IS_LEFT_COURSE = false;
     // IS_LEFT_COURSE = g_isLeftCourse;
 
     // オブジェクトの作成
