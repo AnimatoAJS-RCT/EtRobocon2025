@@ -59,8 +59,7 @@ void generateTracerList()
 
     // シミュレーター環境でファイルを読み込めないため固定文字列で設定値を読み込む
     const std::string lines[] = {
-        "LineTracer 1000 50 60 80 LEFT_EDGE 0.7 0.1 0.6 BLUE",
-        "LineTracer 1000 50 60 80 LEFT_EDGE 0.7 0.1 0.6 BLUE",
+        "LineTracer 1000 50 60 80 LEFT_EDGE 0.8 0.1 0.6 BLUE",
         "#end"
     };
     std::vector<std::string> spl;
@@ -77,8 +76,8 @@ void generateTracerList()
 
         spl = split(lines[idx], " ");
         result_size = spl.size();
-        for(size_t i = 0; i < result_size; ++i) {
-            printf("%zu: %s\n", i, spl[i].c_str());
+        for (size_t i = 0; i < result_size; ++i) {
+            printf("%lu: %s\n", (unsigned long)i, spl[i].c_str());
         }
         printf("\n");
 
@@ -137,7 +136,7 @@ void generateTracerList()
             i = atof(spl[7].c_str());
             d = atof(spl[8].c_str());
             // printf("LineTracer(%lf, %d, %d, %d, %s, PidGain(%lf, %lf, %lf)): push\n",
-            // targetDistance, targetBrightness, pwm, maxPwm, isLeftEdge ? "LEFT_EDGE" :
+            // targetDistance, targetBrightness, pwm, maxPwm, isLeftEdge ? "LEFT_EDGE" : 
             // "RIGHT_EDGE", p, i, d);
             pidGain = new PidGain(p, i, d);
             gWalker->setPwm(pwm);
@@ -145,17 +144,17 @@ void generateTracerList()
             gLineTracer->addStarter(gStarter);
             if(result_size >= 10) {
                 // 色で停止
-                uint16_t stopColor;
+                eColor stopColor;
                 if(spl[9] == "BLUE") {
-                    stopColor = PBIO_COLOR_HUE_BLUE;
+                    stopColor = BLUE;
                 } else if(spl[9] == "RED") {
-                    stopColor = PBIO_COLOR_HUE_RED;
+                    stopColor = RED;
                 } else if(spl[9] == "GREEN") {
-                    stopColor = PBIO_COLOR_HUE_GREEN;
+                    stopColor = GREEN;
                 } else if(spl[9] == "YELLOW") {
-                    stopColor = PBIO_COLOR_HUE_YELLOW;
+                    stopColor = YELLOW;
                 }
-                printf("stopColor: %u\n", stopColor);
+                printf("stopColor: %s\n", colorToString(stopColor));
                 gColorTerminator = new ColorTerminator(&gColorSensor, stopColor);
                 gLineTracer->addTerminator(gColorTerminator);
             }

@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 #include "spikeapi.h"
+#include "kernel.h"
 
 #include <stdbool.h>
 

@@ -53,3 +53,40 @@ std::vector<std::string> split(const std::string& s, const std::string& delimite
     }
     return result;
 }
+
+eColor getColor(int hue, int saturation, int value) {
+    // 彩度(saturation)と明度(value)が0-255の範囲で与えられることを想定
+    // しきい値を0-100の範囲から調整
+    if (value < 128) {  // 元のしきい値: 20
+        return BLACK;
+    }
+    if (saturation < 50) {  // 元のしきい値: saturation < 30, value > 80
+        return WHITE;
+    }
+    if (hue < 20 || hue > 340) {
+        return RED;
+    }
+    if (hue > 40 && hue < 80) {
+        return YELLOW;
+    }
+    if (hue > 100 && hue < 160) {
+        return GREEN;
+    }
+    if (hue > 200 && hue < 280) {
+        return BLUE;
+    }
+    return OTHER;
+}
+
+const char* colorToString(eColor color) {
+    switch (color) {
+        case RED:    return "RED";
+        case BLUE:   return "BLUE";
+        case YELLOW: return "YELLOW";
+        case GREEN:  return "GREEN";
+        case WHITE:  return "WHITE";
+        case BLACK:  return "BLACK";
+        case OTHER:  return "OTHER";
+        default:     return "Unknown";
+    }
+}

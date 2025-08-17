@@ -25,7 +25,7 @@ Starter::Starter(const spikeapi::ForceSensor& forceSensor) : mForceSensor(forceS
 bool Starter::isPushed() const
 {
     bool pushed = mForceSensor.isTouched();
-    printf("Starter::isPushed(): %s\n", pushed ? "true" : "false");
+    //printf("Starter::isPushed(): %s\n", pushed ? "true" : "false");
     return pushed;  // <1>
     // return true;
 }
