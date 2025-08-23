@@ -54,6 +54,7 @@ static DistanceTerminator* gDistanceTerminator;
 static ColorTerminator* gColorTerminator;
 
 std::vector<Tracer*> tracerList;
+int tracerListSize;
 
 void generateTracerList()
 {
@@ -66,8 +67,20 @@ void generateTracerList()
 #ifndef MAKE_RASPIKE
     printf("sim\n");
     // シミュレーター環境でファイルを読み込めないため固定文字列で設定値を読み込む
-    const std::string lines[] = { "ScenarioTracer 10000 100 90 GREEN",
-                                  "LineTracer 1000 50 60 80 LEFT_EDGE 0.8 0.1 0.6 BLUE", "#end" };
+    const std::string lines[] = { "ScenarioTracer 100 40 40",
+                                  "LineTracer 6000 20 50 50 LEFT_EDGE 1.3 0 0.013 BLUE",
+                                  "ScenarioTracer 250 70 68",
+                                  "ScenarioTracer 150 68 70",
+                                  "LineTracer 4000 15 50 50 RIGHT_EDGE 0.7 0 0.005 BLUE",
+                                  "ScenarioTracer 450 74 74",
+                                  "ScenarioTracer 100 50 40",
+                                  "LineTracer 4000 15 50 50 LEFT_EDGE 0.9 0 0.005 BLUE",
+                                  "ScenarioTracer 250 44 70",
+                                  "ScenarioTracer 60 75 50 BLACK",
+                                  "LineTracer 4000 15 40 80 RIGHT_EDGE 0.7 0 0.005 BLUE",
+                                  "ScenarioTracer 200 80 68",
+                                  "LineTracer 6000 15 50 80 LEFT_EDGE 0.7 0 0.005 BLUE",
+                                  "#end" };
     int idx = 0;
     // strcpy((char*)spl, lines[idx]);
     while(lines[idx] != "#end") {
@@ -82,7 +95,7 @@ void generateTracerList()
     printf("notsim\n");
     char iniPath[512];
     getcwd(iniPath, 512);  // カレントディレクトリ取得
-    //strcpy(iniPath, "/home/ajspi/work/RasPike-ART/sdk/workspace");
+    // strcpy(iniPath, "/home/ajspi/work/RasPike-ART/sdk/workspace");
 
     if(IS_LEFT_COURSE) {
         strcat(iniPath, "/tracer_2025_left.ini");  // カレントディレクトリ配下のiniを指定
@@ -161,10 +174,11 @@ void generateTracerList()
             i = atof(spl[7].c_str());
             d = atof(spl[8].c_str());
             printf("LineTracer(%lf, %d, %d, %d, %s, PidGain(%lf, %lf, %lf)): push\n",
-            targetDistance, targetBrightness, pwm, maxPwm, isLeftEdge ? "LEFT_EDGE" :
-            "RIGHT_EDGE", p, i, d);
+                   targetDistance, targetBrightness, pwm, maxPwm,
+                   isLeftEdge ? "LEFT_EDGE" : "RIGHT_EDGE", p, i, d);
             pidGain = new PidGain(p, i, d);
-            gLineTracer = new LineTracer(gLineMonitor, gWalker, pwm, isLeftEdge, pidGain);
+            gLineTracer
+                = new LineTracer(gLineMonitor, gWalker, targetBrightness, pwm, isLeftEdge, pidGain);
             gLineTracer->addStarter(gStarter);
             gLineTracer->addTerminator(gDistanceTerminator);
             if(result_size >= 10) {
@@ -271,6 +285,8 @@ void generateTracerList()
 #ifdef MAKE_RASPIKE
     fclose(file);  // ファイルを閉じる
 #endif
+
+    tracerListSize = tracerList.size();
 }
 
 /**
@@ -341,15 +357,16 @@ void tracer_task(intptr_t exinf)
     if(button.isLeftPressed()) {
         wup_tsk(MAIN_TASK);  // レフトボタン押下
     } else {
-        printf("tracer_task: tracerList size: %d\n", tracerList.size());
-        if (!tracerList.empty() && tracerList.front() != nullptr && tracerList.front()->isTerminated()) {
+        printf("tracer_task: tracerList: %d/%d\n", (tracerListSize - tracerList.size() + 1), tracerListSize);
+        if(!tracerList.empty() && tracerList.front() != nullptr
+           && tracerList.front()->isTerminated()) {
             printf("remove\n");
             Tracer* tracer = tracerList.front();
             tracerList.erase(tracerList.begin());
             delete tracer;
         }
 
-        if (!tracerList.empty() && tracerList.front() != nullptr) {
+        if(!tracerList.empty() && tracerList.front() != nullptr) {
             tracerList.front()->run();
         }
     }

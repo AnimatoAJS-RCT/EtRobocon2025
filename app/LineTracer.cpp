@@ -18,10 +18,11 @@ const int LineTracer::bias = 0;
  * @param lineMonitor     ライン判定
  * @param walker 走行
  */
-LineTracer::LineTracer(const LineMonitor* lineMonitor, Walker* walker, int pwm, bool isLeftEdge,
+LineTracer::LineTracer(LineMonitor* lineMonitor, Walker* walker, int targetBrightness, int pwm, bool isLeftEdge,
                        PidGain* pidGain)
   : mLineMonitor(lineMonitor),
     mWalker(walker),
+    mTargetBrightness(targetBrightness),
     mPwm(pwm),
     mIsLeftEdge(isLeftEdge),
     mPidGain(pidGain),
@@ -85,12 +86,14 @@ void LineTracer::execWaitingForStart()
     // 開始条件を満たしているか確認する
     if(mStarterList.empty()) {
         // 開始条件を満たした場合の処理
+        mLineMonitor->setThreshold(mTargetBrightness);
         mState = WALKING;
         return;
     }
     for(auto starter : mStarterList) {
         if(starter->isPushed()) {
             // 開始条件を満たした場合の処理
+            mLineMonitor->setThreshold(mTargetBrightness);
             mState = WALKING;
             return;
         }
