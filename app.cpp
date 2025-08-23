@@ -137,13 +137,13 @@ void generateTracerList()
             targetBrightness = atof(spl[2].c_str());
             pwm = atof(spl[3].c_str());
             maxPwm = atof(spl[4].c_str());
-            isLeftEdge = (spl[5] == "LEFT_EDGE");
+            isLeftEdge = (strcmp(spl[5].c_str(), "LEFT_EDGE") == 0);
             p = atof(spl[6].c_str());
             i = atof(spl[7].c_str());
             d = atof(spl[8].c_str());
-            // printf("LineTracer(%lf, %d, %d, %d, %s, PidGain(%lf, %lf, %lf)): push\n",
-            // targetDistance, targetBrightness, pwm, maxPwm, isLeftEdge ? "LEFT_EDGE" :
-            // "RIGHT_EDGE", p, i, d);
+            printf("LineTracer(%lf, %d, %d, %d, %s, PidGain(%lf, %lf, %lf)): push\n",
+            targetDistance, targetBrightness, pwm, maxPwm, isLeftEdge ? "LEFT_EDGE" :
+            "RIGHT_EDGE", p, i, d);
             pidGain = new PidGain(p, i, d);
             gLineTracer = new LineTracer(gLineMonitor, gWalker, pwm, isLeftEdge, pidGain);
             gLineTracer->addStarter(gStarter);
@@ -316,10 +316,17 @@ void tracer_task(intptr_t exinf)
     if(button.isLeftPressed()) {
         wup_tsk(MAIN_TASK);  // レフトボタン押下
     } else {
-        if(!tracerList.empty() && tracerList.front() != nullptr) {
+        printf("tracer_task: tracerList size: %d\n", tracerList.size());
+        if (!tracerList.empty() && tracerList.front() != nullptr && tracerList.front()->isTerminated()) {
+            printf("remove\n");
+            Tracer* tracer = tracerList.front();
+            tracerList.erase(tracerList.begin());
+            delete tracer;
+        }
+
+        if (!tracerList.empty() && tracerList.front() != nullptr) {
             tracerList.front()->run();
         }
-        // TODO:terminateしたら次のTracerに行くようにする
     }
 
     ext_tsk();

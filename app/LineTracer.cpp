@@ -106,6 +106,9 @@ void LineTracer::execWalking()
 
     // 走行体の操作量を計算する
     float turn = calcPropValue(diffReflection);
+    if (mIsLeftEdge) {
+        turn = -turn;
+    }
     mWalker->setPwm(mPwm - turn, mPwm + turn);
 
     // 走行を行う

@@ -16,10 +16,11 @@ class Starter {
 public:
     explicit Starter(const spikeapi::ForceSensor& forceSensor);
 
-    bool isPushed() const;
+    bool isPushed();
 
 private:
     const spikeapi::ForceSensor& mForceSensor;
+    bool mIsStarted;
 };
 
 #endif  // ETTR_UNIT_STARTER_H_

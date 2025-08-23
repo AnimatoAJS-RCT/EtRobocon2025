@@ -30,7 +30,7 @@ void DistanceTerminator::init()
 bool DistanceTerminator::isToBeTerminate()
 {
     double currentDistance = calcCurrentDistance() - mInitialDistance;
-    printf("DistanceTerminator::isToBeTerminate(): current: %f, target: %f\n", currentDistance, mTargetDistance);
+    //printf("DistanceTerminator::isToBeTerminate(): current: %f, target: %f\n", currentDistance, mTargetDistance);
     return currentDistance >= mTargetDistance;
 }
 
