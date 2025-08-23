@@ -12,21 +12,22 @@
 
 #include "ColorSensor.h"
 #include "Terminator.h"
+#include "Util.h"
 
 class ColorTerminator : public Terminator {
    public:
     /**
-     * コンストラクタ
+     * 繧ｳ繝ｳ繧ｹ繝医Λ繧ｯ繧ｿ
      * @param colorSensor ColorSensor
-     * @param termColor 停止する色のH成分
+     * @param termColor 蛛懈ｭ｢縺吶ｋ濶ｲ
      */
-    ColorTerminator(const spikeapi::ColorSensor* colorSensor, const uint16_t termColorH);
+    ColorTerminator(const spikeapi::ColorSensor* colorSensor, const eColor termColor);
 
     bool isToBeTerminate();
 
    private:
     const spikeapi::ColorSensor* mColorSensor;
-    const uint16_t mTermColorH;
+    const eColor mTermColor;
 };
 
 #endif  // ETTR_UNIT_ColorTerminator_H_

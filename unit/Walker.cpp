@@ -16,7 +16,7 @@
  * @param rightWheel 右モータ
  */
 Walker::Walker(spikeapi::Motor& leftWheel, spikeapi::Motor& rightWheel)
-  : mLeftWheel(leftWheel), mRightWheel(rightWheel), mTurn(0)
+  : mLeftWheel(leftWheel), mRightWheel(rightWheel), mLeftPwm(0), mRightPwm(0)
 {
 }
 
@@ -25,10 +25,8 @@ Walker::Walker(spikeapi::Motor& leftWheel, spikeapi::Motor& rightWheel)
  */
 void Walker::run()
 {
-    // 左右モータに回転を指示する
-    // printf("pwm:%d, mTurn:%d\n", pwm, mTurn);
-    mLeftWheel.setPower(mPwm - mTurn);
-    mRightWheel.setPower(mPwm + mTurn);
+    mLeftWheel.setPower(mLeftPwm);
+    mRightWheel.setPower(mRightPwm);
 }
 
 /**
@@ -36,7 +34,6 @@ void Walker::run()
  */
 void Walker::stop()
 {
-    // 左右モータを停止する
     mLeftWheel.stop();
     mRightWheel.stop();
 }
@@ -46,26 +43,33 @@ void Walker::stop()
  */
 void Walker::init()
 {
-    // モータをリセットする
     mLeftWheel.resetCount();
     mRightWheel.resetCount();
 }
 
 /**
- * PWMへの加算値を設定する
- * @param forward 前進値
- * @param turn    旋回方向
+ * PWMを設定する
+ * @param leftPwm 左モーターのPWM値
+ * @param rightPwm 右モーターのPWM値
  */
-void Walker::setTurn(float turn)
+void Walker::setPwm(int leftPwm, int rightPwm)
 {
-    mTurn = turn;
+    mLeftPwm = leftPwm;
+    mRightPwm = rightPwm;
 }
 
 /**
- * PWMを設定する
- * @param pwd PWM値 -100~100
+ * 左タイヤの回転数を取得する
  */
-void Walker::setPwm(int pwm)
+int Walker::getLeftCount()
 {
-    mPwm = pwm;
+    return mLeftWheel.getCount();
+}
+
+/**
+ * 右タイヤの回転数を取得する
+ */
+int Walker::getRightCount()
+{
+    return mRightWheel.getCount();
 }

@@ -21,17 +21,15 @@ public:
     void init();
     void run();
     void stop();
-    void setTurn(float turn);
-    void setPwm(int pwm);
+    void setPwm(int leftPwm, int rightPwm);
+    int getLeftCount();
+    int getRightCount();
 
 private:
     spikeapi::Motor& mLeftWheel;
     spikeapi::Motor& mRightWheel;
-    int mTurn;
-    
-    // mPwm PWM値 -100~100
-    int mPwm = 40;
-
+    int mLeftPwm;
+    int mRightPwm;
 };
 
 #endif  // ETTR_UNIT_WALKER_H_

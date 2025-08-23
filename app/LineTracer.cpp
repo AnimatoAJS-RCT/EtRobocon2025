@@ -18,10 +18,11 @@ const int LineTracer::bias = 0;
  * @param lineMonitor     ライン判定
  * @param walker 走行
  */
-LineTracer::LineTracer(const LineMonitor* lineMonitor, Walker* walker, bool isLeftEdge,
+LineTracer::LineTracer(const LineMonitor* lineMonitor, Walker* walker, int pwm, bool isLeftEdge,
                        PidGain* pidGain)
   : mLineMonitor(lineMonitor),
     mWalker(walker),
+    mPwm(pwm),
     mIsLeftEdge(isLeftEdge),
     mPidGain(pidGain),
     mIsInitialized(false),
@@ -105,7 +106,7 @@ void LineTracer::execWalking()
 
     // 走行体の操作量を計算する
     float turn = calcPropValue(diffReflection);
-    mWalker->setTurn(turn);
+    mWalker->setPwm(mPwm - turn, mPwm + turn);
 
     // 走行を行う
     mWalker->run();

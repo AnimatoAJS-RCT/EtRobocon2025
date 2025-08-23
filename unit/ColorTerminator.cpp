@@ -9,16 +9,17 @@
 
 #include "ColorTerminator.h"
 #include "ColorSensor.h"
+#include "Util.h"
 
 #include <stdio.h>
 
 /**
  * コンストラクタ
  * @param colorSensor ColorSensor
- * @param termColor 停止する色のH成分
+ * @param termColor 停止する色
  */
-ColorTerminator::ColorTerminator(const spikeapi::ColorSensor* colorSensor, uint16_t termColorH)
-  : mColorSensor(colorSensor), mTermColorH(termColorH)
+ColorTerminator::ColorTerminator(const spikeapi::ColorSensor* colorSensor, eColor termColor)
+  : mColorSensor(colorSensor), mTermColor(termColor)
 {
 }
 
@@ -26,6 +27,7 @@ bool ColorTerminator::isToBeTerminate()
 {
     spikeapi::ColorSensor::HSV hsv;
     mColorSensor->getHSV(hsv);
-    printf("ColorTerminator::isToBeTerminate(): %u\n", hsv.h);
-    return hsv.h == mTermColorH;
+    eColor c = getColor(hsv.h, hsv.s, hsv.v);
+    printf("ColorTerminator::isToBeTerminate(): h=%u\ts=%u\tv=%u\tcolor=%s\n", hsv.h, hsv.s, hsv.v, colorToString(c));
+    return  c == mTermColor;
 }

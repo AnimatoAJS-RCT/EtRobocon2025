@@ -11,7 +11,9 @@
 #include "Tracer.h"
 #include "LineMonitor.h"
 #include "LineTracer.h"
+#include "ScenarioTracer.h"
 #include "Walker.h"
+#include "DistanceTerminator.h"
 #include "ColorTerminator.h"
 #include "Util.h"
 
@@ -46,7 +48,9 @@ Motor gRightWheel(EPort::PORT_A, Motor::EDirection::CLOCKWISE, true);
 static LineMonitor* gLineMonitor;
 static Walker* gWalker;
 static LineTracer* gLineTracer;
+static ScenarioTracer* gScenarioTracer;
 static Starter* gStarter;
+static DistanceTerminator* gDistanceTerminator;
 static ColorTerminator* gColorTerminator;
 
 std::vector<Tracer*> tracerList;
@@ -72,99 +76,89 @@ void generateTracerList()
     char line[512];
     std::vector<std::string> spl;
     size_t result_size;
-
+    int idx = 0;
     // 1行ずつ値を読み取り使用
-    fgets(line, 512, file);
-    line[strlen(line) - 1] = '\0';  // 改行まで読み込んでいるので末尾を削除（終端文字に変更）
-    while(strcmp(line, "#end") != 0) {
-        // printf("readini: a%sa, %d\n", line, strcmp(line, "#end"));
-        if(line[0] == '#') {
-            fgets(line, 512, file);
-            line[strlen(line) - 1] = '\0';
+    // strcpy((char*)spl, lines[idx]);
+    while(lines[idx] != "#end") {
+        printf("readini: %s\n", lines[idx].c_str());
+        if(lines[idx][0] == '#') {
+            idx++;
             continue;
         }
 
         spl = split(line, " ");
         result_size = spl.size();
         for(size_t i = 0; i < result_size; ++i) {
-            printf("%zu: %s\n", i, spl[i].c_str());
+            printf("%lu: %s\n", (unsigned long)i, spl[i].c_str());
         }
         printf("\n");
 
         if(spl[0] == "ScenarioTracer") {
-            // TODO:ScenarioTracer生成
-            //            double targetDistance;
-            //            int leftPwm, rightPwm;
-            //            targetDistance = std::stod(spl[1]);
-            //            leftPwm = std::stod(spl[2]);
-            //            rightPwm = std::stod(spl[3]);
-            //            if (result_size >= 5)
-            //            {
-            //                colorid_t stopColor;
-            //                if (spl[4] == "BLACK")
-            //                {
-            //                    stopColor = colorid_t::COLOR_BLACK;
-            //                }
-            //                else if (spl[9] == "BLUE")
-            //                {
-            //                    stopColor = colorid_t::COLOR_BLUE;
-            //                }
-            //                else if (spl[9] == "RED")
-            //                {
-            //                    stopColor = colorid_t::COLOR_RED;
-            //                }
-            //                else if (spl[9] == "GREEN")
-            //                {
-            //                    stopColor = colorid_t::COLOR_GREEN;
-            //                }
-            //                else if (spl[9] == "YELLOW")
-            //                {
-            //                    stopColor = colorid_t::COLOR_YELLOW;
-            //                }
-            //                printf("ScenarioTracer(%lf, %d, %d, %d): push\n", targetDistance,
-            //                leftPwm, rightPwm, stopColor); courseList.push_back(new
-            //                ScenarioTracer(targetDistance, leftPwm, rightPwm, stopColor));
-            //            }
-            //            else
-            //            {
-            //                printf("ScenarioTracer(%lf, %d, %d): push\n", targetDistance, leftPwm,
-            //                rightPwm); courseList.push_back(new ScenarioTracer(targetDistance,
-            //                leftPwm, rightPwm));
-            //            }
+            double targetDistance;
+            int leftPwm, rightPwm;
+            targetDistance = atof(spl[1].c_str());
+            leftPwm = atof(spl[2].c_str());
+            rightPwm = atof(spl[3].c_str());
+
+            gScenarioTracer = new ScenarioTracer(gWalker, leftPwm, rightPwm);
+            gScenarioTracer->addStarter(gStarter);
+
+            gDistanceTerminator = new DistanceTerminator(gWalker, targetDistance);
+            gScenarioTracer->addTerminator(gDistanceTerminator);
+
+            if(result_size >= 5) {
+                eColor stopColor;
+                if(spl[4] == "BLACK") {
+                    stopColor = BLACK;
+                } else if(spl[4] == "BLUE") {
+                    stopColor = BLUE;
+                } else if(spl[4] == "RED") {
+                    stopColor = RED;
+                } else if(spl[4] == "GREEN") {
+                    stopColor = GREEN;
+                } else if(spl[4] == "YELLOW") {
+                    stopColor = YELLOW;
+                }
+                gColorTerminator = new ColorTerminator(&gColorSensor, stopColor);
+                gScenarioTracer->addTerminator(gColorTerminator);
+            }
+            tracerList.push_back(gScenarioTracer);
+
         } else if(spl[0] == "LineTracer") {
             // TODO:targetDistanceでのterminateを実装
             double targetDistance, p, i, d;
             int targetBrightness, pwm, maxPwm;
             bool isLeftEdge;
             PidGain* pidGain;
-            targetDistance = std::stod(spl[1]);
-            targetBrightness = std::stod(spl[2]);
-            pwm = std::stod(spl[3]);
-            maxPwm = std::stod(spl[4]);
+            targetDistance = atof(spl[1].c_str());
+            gDistanceTerminator = new DistanceTerminator(gWalker, targetDistance);
+            targetBrightness = atof(spl[2].c_str());
+            pwm = atof(spl[3].c_str());
+            maxPwm = atof(spl[4].c_str());
             isLeftEdge = (spl[5] == "LEFT_EDGE");
-            p = std::stod(spl[6]);
-            i = std::stod(spl[7]);
-            d = std::stod(spl[8]);
+            p = atof(spl[6].c_str());
+            i = atof(spl[7].c_str());
+            d = atof(spl[8].c_str());
             // printf("LineTracer(%lf, %d, %d, %d, %s, PidGain(%lf, %lf, %lf)): push\n",
             // targetDistance, targetBrightness, pwm, maxPwm, isLeftEdge ? "LEFT_EDGE" :
             // "RIGHT_EDGE", p, i, d);
             pidGain = new PidGain(p, i, d);
-            gWalker->setPwm(pwm);
-            gLineTracer = new LineTracer(gLineMonitor, gWalker, isLeftEdge, pidGain);
+            gLineTracer = new LineTracer(gLineMonitor, gWalker, pwm, isLeftEdge, pidGain);
             gLineTracer->addStarter(gStarter);
+            gLineTracer->addTerminator(gDistanceTerminator);
             if(result_size >= 10) {
                 // 色で停止
-                uint16_t stopColor;
+                eColor stopColor;
                 if(spl[9] == "BLUE") {
-                    stopColor = PBIO_COLOR_HUE_BLUE;
+                    stopColor = BLUE;
                 } else if(spl[9] == "RED") {
-                    stopColor = PBIO_COLOR_HUE_RED;
+                    stopColor = RED;
                 } else if(spl[9] == "GREEN") {
-                    stopColor = PBIO_COLOR_HUE_GREEN;
+                    stopColor = GREEN;
                 } else if(spl[9] == "YELLOW") {
-                    stopColor = PBIO_COLOR_HUE_YELLOW;
+                    stopColor = YELLOW;
                 }
-                printf("stopColor: %u\n", stopColor);
+                printf("stopColor: %s\n", colorToString(stopColor));
                 gColorTerminator = new ColorTerminator(&gColorSensor, stopColor);
                 gLineTracer->addTerminator(gColorTerminator);
             }
@@ -190,10 +184,10 @@ void generateTracerList()
         //            {
         //                direction = 1;
         //            }
-        //            degree = std::stod(spl[2]);
+        //            degree = atof(spl[2].c_str());
         //            if (result_size >= 4)
         //            {
-        //                pwm = std::stod(spl[3]);
+        //                pwm = atof(spl[3].c_str());
         //                printf("RotateTracer(%d, %d, %d): push\n", direction, degree, pwm);
         //                courseList.push_back(new RotateTracer(direction, degree, pwm));
         //            }
@@ -225,14 +219,14 @@ void generateTracerList()
         //
         //            if (result_size == 3)
         //            {
-        //                maxTimer = std::stod(spl[2]);
+        //                maxTimer = atof(spl[2].c_str());
         //                printf("DifficultScenarioTracer(%d, %d): push\n", direction, maxTimer);
         //                courseList.push_back(new DifficultScenarioTracer(direction, maxTimer));
         //            }
         //            else if (result_size == 4)
         //            {
-        //                maxTimer = std::stod(spl[2]);
-        //                maxCnt = std::stod(spl[3]);
+        //                maxTimer = atof(spl[2].c_str());
+        //                maxCnt = atof(spl[3].c_str());
         //                printf("DifficultScenarioTracer(%d, %d, %d): push\n", direction, maxTimer,
         //                maxCnt); courseList.push_back(new DifficultScenarioTracer(direction,
         //                maxTimer, maxCnt));
@@ -246,10 +240,8 @@ void generateTracerList()
         else {
             // Tracer名にマッチしなかったらなにもしない
         }
-        fgets(line, 512, file);
-        line[strlen(line) - 1] = '\0';
+        idx++;
     }
-    fclose(file);  // ファイルを閉じる
 }
 
 /**

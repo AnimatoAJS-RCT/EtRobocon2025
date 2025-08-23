@@ -25,12 +25,14 @@ public:
      * コンストラクタ
      * @param lineMonitor LineMonitor
      * @param walker Walker
+     * @param pwm PWM値
      * @param _isLeftEdge エッジの左右どちらを走るか(true:左エッジ, false:右エッジ)
      * @param _gain PIDゲイン
      * @param _stopColor 停止条件の色 //TODO:未実装
      */
     LineTracer(const LineMonitor *lineMonitor,
                Walker *walker,
+               int pwm,
                bool _isLeftEdge,
                PidGain *_gain);
 
@@ -40,7 +42,6 @@ private:
     const LineMonitor *mLineMonitor;
     Walker *mWalker;
     int mPwm;
-    int mMaxPwm;
     bool mIsLeftEdge;
     PidGain *mPidGain;
     bool mIsInitialized;

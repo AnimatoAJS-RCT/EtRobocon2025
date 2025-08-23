@@ -26,4 +26,18 @@
 //size_t split(char* s, const char* separator, char** result, size_t result_size);
 std::vector<std::string> split(const std::string& s, const std::string& separator);
 
+enum eColor {
+    RED,
+    BLUE,
+    YELLOW,
+    GREEN,
+    WHITE,
+    BLACK,
+    OTHER
+};
+
+eColor getColor(int hue, int saturation, int value);
+
+const char* colorToString(eColor color);
+
 #endif // UTILITY_H
