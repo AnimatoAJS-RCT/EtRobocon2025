@@ -60,9 +60,38 @@ void generateTracerList()
     // iniファイル読み込み
     int pwm, maxPwm;
     double p, i, d;
+    std::vector<std::string> spl;
+    size_t result_size;
+
+#ifdef DEBUG_MODE
+  // DEBUG_MODEが定義されている場合のコード
+  // （例：デバッグ用のログ出力など）
+  printf("Debug mode is enabled.\n");
+#else
+  // DEBUG_MODEが定義されていない場合のコード
+  printf("Debug mode is disabled.\n");
+#endif
+
+#ifndef MAKE_RASPIKE
+    printf("sim\n");
+    // シミュレーター環境でファイルを読み込めないため固定文字列で設定値を読み込む
+    const std::string lines[] = { "ScenarioTracer 10000 100 90 GREEN",
+                                  "LineTracer 1000 50 60 80 LEFT_EDGE 0.8 0.1 0.6 BLUE", "#end" };
+    int idx = 0;
+    // strcpy((char*)spl, lines[idx]);
+    while(lines[idx] != "#end") {
+        printf("readini: %s\n", lines[idx].c_str());
+        if(lines[idx][0] == '#') {
+            idx++;
+            continue;
+        }
+
+        spl = split(lines[idx], " ");
+#else
+    printf("notsim\n");
     char iniPath[512];
     getcwd(iniPath, 512);  // カレントディレクトリ取得
-    // strcpy(iniPath, "/home/ajspi/work/RasPike-ART/sdk/workspace");
+    //strcpy(iniPath, "/home/ajspi/work/RasPike-ART/sdk/workspace");
 
     if(IS_LEFT_COURSE) {
         strcat(iniPath, "/tracer_2025_left.ini");  // カレントディレクトリ配下のiniを指定
@@ -74,8 +103,6 @@ void generateTracerList()
     FILE* file;
     file = fopen(iniPath, "r");  // ファイル読み込み
     char line[512];
-    std::vector<std::string> spl;
-    size_t result_size;
 
     // 1行ずつ値を読み取り使用
     fgets(line, 512, file);
@@ -89,6 +116,7 @@ void generateTracerList()
         }
 
         spl = split(line, " ");
+#endif
         result_size = spl.size();
         for(size_t i = 0; i < result_size; ++i) {
             printf("%lu: %s\n", (unsigned long)i, spl[i].c_str());
@@ -242,10 +270,16 @@ void generateTracerList()
         else {
             // Tracer名にマッチしなかったらなにもしない
         }
+#ifndef MAKE_RASPIKE
+        idx++;
+#else
         fgets(line, 512, file);
         line[strlen(line) - 1] = '\0';
+#endif
     }
+#ifdef MAKE_RASPIKE
     fclose(file);  // ファイルを閉じる
+#endif
 }
 
 /**
