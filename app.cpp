@@ -357,7 +357,6 @@ void tracer_task(intptr_t exinf)
     if(button.isLeftPressed()) {
         wup_tsk(MAIN_TASK);  // レフトボタン押下
     } else {
-        printf("tracer_task: tracerList: %d/%d\n", (tracerListSize - tracerList.size() + 1), tracerListSize);
         if(!tracerList.empty() && tracerList.front() != nullptr
            && tracerList.front()->isTerminated()) {
             printf("remove\n");
@@ -367,6 +366,8 @@ void tracer_task(intptr_t exinf)
         }
 
         if(!tracerList.empty() && tracerList.front() != nullptr) {
+            printf("tracer_task: tracerList: %d/%d\n", (tracerListSize - tracerList.size() + 1),
+                   tracerListSize);
             tracerList.front()->run();
         }
     }

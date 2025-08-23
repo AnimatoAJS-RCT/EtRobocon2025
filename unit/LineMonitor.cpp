@@ -40,7 +40,7 @@ int LineMonitor::calDiffReflection() const
 
     spikeapi::ColorSensor::HSV hsv;
     mColorSensor.getHSV(hsv);
-    printf("%d\t%u\t%u\t%u\n", mColorSensor.getReflection(), hsv.h, hsv.s, hsv.v);
+    printf("%d\t%u\t%u\t%u\n", diff, hsv.h, hsv.s, hsv.v);
 
     return diff;
 }
