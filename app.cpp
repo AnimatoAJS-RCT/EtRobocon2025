@@ -63,15 +63,6 @@ void generateTracerList()
     std::vector<std::string> spl;
     size_t result_size;
 
-#ifdef DEBUG_MODE
-  // DEBUG_MODEが定義されている場合のコード
-  // （例：デバッグ用のログ出力など）
-  printf("Debug mode is enabled.\n");
-#else
-  // DEBUG_MODEが定義されていない場合のコード
-  printf("Debug mode is disabled.\n");
-#endif
-
 #ifndef MAKE_RASPIKE
     printf("sim\n");
     // シミュレーター環境でファイルを読み込めないため固定文字列で設定値を読み込む
