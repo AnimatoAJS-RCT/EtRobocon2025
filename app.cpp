@@ -76,13 +76,15 @@ void generateTracerList()
     char line[512];
     std::vector<std::string> spl;
     size_t result_size;
-    int idx = 0;
+
     // 1行ずつ値を読み取り使用
-    // strcpy((char*)spl, lines[idx]);
-    while(lines[idx] != "#end") {
-        printf("readini: %s\n", lines[idx].c_str());
-        if(lines[idx][0] == '#') {
-            idx++;
+    fgets(line, 512, file);
+    line[strlen(line) - 1] = '\0';  // 改行まで読み込んでいるので末尾を削除（終端文字に変更）
+    while(strcmp(line, "#end") != 0) {
+        // printf("readini: a%sa, %d\n", line, strcmp(line, "#end"));
+        if(line[0] == '#') {
+            fgets(line, 512, file);
+            line[strlen(line) - 1] = '\0';
             continue;
         }
 
@@ -240,8 +242,10 @@ void generateTracerList()
         else {
             // Tracer名にマッチしなかったらなにもしない
         }
-        idx++;
+        fgets(line, 512, file);
+        line[strlen(line) - 1] = '\0';
     }
+    fclose(file);  // ファイルを閉じる
 }
 
 /**
