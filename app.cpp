@@ -16,6 +16,7 @@
 #include "DistanceTerminator.h"
 #include "ColorTerminator.h"
 #include "Util.h"
+#include "Calibrator.h"
 
 #include "Light.h"
 #include "Button.h"
@@ -52,6 +53,7 @@ static ScenarioTracer* gScenarioTracer;
 static Starter* gStarter;
 static DistanceTerminator* gDistanceTerminator;
 static ColorTerminator* gColorTerminator;
+static Calibrator* gCalibrator;
 
 std::vector<Tracer*> tracerList;
 int tracerListSize;
@@ -302,6 +304,7 @@ static void user_system_create()
     gWalker = new Walker(gLeftWheel, gRightWheel);
     gLineMonitor = new LineMonitor(gColorSensor);
     gStarter = new Starter(gForceSensor);
+    gCalibrator = new Calibrator(gColorSensor, gForceSensor);
     // gPidGain = new PidGain(0.7, 0.1, 0.6);
     // gLineTracer = new LineTracer(gLineMonitor, gWalker, 50, 50, true, gPidGain);
     generateTracerList();
@@ -325,6 +328,7 @@ static void user_system_destroy()
     delete gStarter;
     delete gLineMonitor;
     delete gWalker;
+    delete gCalibrator;
 }
 
 /**
@@ -333,6 +337,22 @@ static void user_system_destroy()
 void main_task(intptr_t unused)
 {
     user_system_create();  // センサやモータの初期化処理
+
+    // 周期ハンドラ開始
+    sta_cyc(CYC_CALIBRATOR);
+
+    slp_tsk();  // キャリブレーション完了まで待つ
+
+    // 周期ハンドラ停止
+    stp_cyc(CYC_CALIBRATOR);
+
+    // キャリブレーション結果をLineTracerに設定
+    for(auto tracer : tracerList) {
+        LineTracer* lineTracer = dynamic_cast<LineTracer*>(tracer);
+        if(lineTracer != nullptr) {
+            lineTracer->setTargetBrightness(gCalibrator->getTarget());
+        }
+    }
 
     // 周期ハンドラ開始
     sta_cyc(CYC_TRACER);
@@ -345,6 +365,14 @@ void main_task(intptr_t unused)
     user_system_destroy();  // 終了処理
 
     ext_tsk();
+}
+
+/**
+ * キャリブレーション
+ */
+void calibrate()
+{
+    gCalibrator->run();
 }
 
 /**
