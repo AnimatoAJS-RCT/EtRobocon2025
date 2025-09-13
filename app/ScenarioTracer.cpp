@@ -61,10 +61,17 @@ void ScenarioTracer::execWalking()
     double correction = Kp * error;
 
     // 補正後のPWM値を計算
-    // error > 0 -> 左が回りすぎ -> 左を弱め、右を強める
-    // error < 0 -> 右が回りすぎ -> 右を弱め、左を強める
-    int correctedLeftPwm = mLeftPwm - static_cast<int>(correction);
-    int correctedRightPwm = mRightPwm + static_cast<int>(correction);
+    int correctedLeftPwm;
+    int correctedRightPwm;
+
+    // 前進・ほぼ直進と後退で補正の向きを変える
+    if (mLeftPwm + mRightPwm >= 0) { // Forward
+        correctedLeftPwm = mLeftPwm - static_cast<int>(correction);
+        correctedRightPwm = mRightPwm + static_cast<int>(correction);
+    } else { // Backward
+        correctedLeftPwm = mLeftPwm + static_cast<int>(correction);
+        correctedRightPwm = mRightPwm - static_cast<int>(correction);
+    }
 
     printf("Correction: L/R Cnt=%d/%d, Err=%.1f, Corr=%.1f, PWM L/R=%d/%d -> %d/%d\n",
            leftCount, rightCount, error, correction, mLeftPwm, mRightPwm, correctedLeftPwm, correctedRightPwm);
