@@ -54,6 +54,11 @@ void LineTracer::run()
     }
 }
 
+void LineTracer::setTargetBrightness(int targetBrightness)
+{
+    mTargetBrightness = targetBrightness;
+}
+
 /**
  * 走行体の操作量を計算する
  * @param diffBrightness ラインから外れた度合い（ライン閾値との差）

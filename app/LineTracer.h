@@ -39,6 +39,7 @@ public:
                PidGain *_gain);
 
     void run();
+    void setTargetBrightness(int targetBrightness);
 
 private:
     LineMonitor *mLineMonitor;

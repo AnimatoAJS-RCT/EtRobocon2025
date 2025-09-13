@@ -356,14 +356,6 @@ void main_task(intptr_t unused)
     // キャリブレーション結果をLineMonitorに設定
     gLineMonitor->setThreshold(targetBrightness);
 
-    // 周期ハンドラ開始
-    sta_cyc(CYC_CALIBRATOR);
-
-    slp_tsk();  // キャリブレーション完了まで待つ
-
-    // 周期ハンドラ停止
-    stp_cyc(CYC_CALIBRATOR);
-
     // キャリブレーション結果をLineTracerに設定
     for(auto tracer : tracerList) {
         LineTracer* lineTracer = dynamic_cast<LineTracer*>(tracer);
