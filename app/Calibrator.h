@@ -2,12 +2,12 @@
 #define ETTR_APP_CALIBRATOR_H_
 
 #include "ColorSensor.h"
-#include "TouchSensor.h"
+#include "ForceSensor.h"
 
 class Calibrator {
 public:
     explicit Calibrator(const spikeapi::ColorSensor& colorSensor,
-                        const spikeapi::TouchSensor& touchSensor);
+                        const spikeapi::ForceSensor& forceSensor);
     void run();
     int getBlack();
     int getWhite();
@@ -17,25 +17,23 @@ public:
 private:
     void execUndefined();
     void execWaitingForStart();
+    void execSettingCourse();
     void execCalibratingBlack();
-    void execWaitingForWhite();
     void execCalibratingWhite();
-    void execWaitingForFinish();
     void execTerminated();
 
     enum State {
         UNDEFINED,
         WAITING_FOR_START,
+        SETTING_COURSE,
         CALIBRATING_BLACK,
-        WAITING_FOR_WHITE,
         CALIBRATING_WHITE,
-        WAITING_FOR_FINISH,
         TERMINATED
     };
     State mState = UNDEFINED;
 
     const spikeapi::ColorSensor& mColorSensor;
-    const spikeapi::TouchSensor& mTouchSensor;
+    const spikeapi::ForceSensor& mForceSensor;
     int mBlack = 0;
     int mWhite = 100;
     bool mIsInitialized = false;

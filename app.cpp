@@ -15,6 +15,7 @@
 #include "Walker.h"
 #include "DistanceTerminator.h"
 #include "ColorTerminator.h"
+#include "Calibrator.h"
 #include "Util.h"
 #include "Calibrator.h"
 
@@ -35,6 +36,8 @@
 // デストラクタ問題の回避
 // https://github.com/ETrobocon/etroboEV3/wiki/problem_and_coping
 // void *__dso_handle=0;
+
+bool IS_LEFT_COURSE = true;  // Lコース。デフォルトはLコース。キャリブレーションで変更される。
 
 using namespace spikeapi;
 
@@ -98,12 +101,8 @@ void generateTracerList()
     char iniPath[512];
     getcwd(iniPath, 512);  // カレントディレクトリ取得
     // strcpy(iniPath, "/home/ajspi/work/RasPike-ART/sdk/workspace");
-
-    if(IS_LEFT_COURSE) {
-        strcat(iniPath, "/tracer_2025_left.ini");  // カレントディレクトリ配下のiniを指定
-    } else {
-        strcat(iniPath, "/tracer_2025_right.ini");  // カレントディレクトリ配下のiniを指定
-    }
+    // Rコースの場合もleft.iniを読み込み、パラメータを反転させる
+    strcat(iniPath, "/tracer_2025_left.ini");  // カレントディレクトリ配下のiniを指定
 
     printf("tracer.ini読み取り:%s\n", iniPath);
     FILE* file;
@@ -136,6 +135,12 @@ void generateTracerList()
             leftPwm = atof(spl[2].c_str());
             rightPwm = atof(spl[3].c_str());
 
+            // Rコースの場合、左右のPWMを入れ替える
+            if (!IS_LEFT_COURSE) {
+                int tmp = leftPwm;
+                leftPwm = rightPwm;
+                rightPwm = tmp;
+            }
             gScenarioTracer = new ScenarioTracer(gWalker, leftPwm, rightPwm);
             gScenarioTracer->addStarter(gStarter);
 
@@ -172,6 +177,12 @@ void generateTracerList()
             pwm = atof(spl[3].c_str());
             maxPwm = atof(spl[4].c_str());
             isLeftEdge = (strcmp(spl[5].c_str(), "LEFT_EDGE") == 0);
+
+            // Rコースの場合、エッジを反転させる
+            if (!IS_LEFT_COURSE) {
+                isLeftEdge = !isLeftEdge;
+            }
+
             p = atof(spl[6].c_str());
             i = atof(spl[7].c_str());
             d = atof(spl[8].c_str());
@@ -297,8 +308,7 @@ void generateTracerList()
 static void user_system_create()
 {
     // コース設定
-    IS_LEFT_COURSE = false;
-    // IS_LEFT_COURSE = g_isLeftCourse;
+    // IS_LEFT_COURSE はキャリブレーション時に設定する
 
     // オブジェクトの作成
     gWalker = new Walker(gLeftWheel, gRightWheel);
@@ -336,7 +346,15 @@ static void user_system_destroy()
  */
 void main_task(intptr_t unused)
 {
-    user_system_create();  // センサやモータの初期化処理
+    // キャリブレーションを先に実行し、コース(L/R)を決定する
+    Calibrator calibrator(gColorSensor, gForceSensor);
+    calibrator.run();
+    int targetBrightness = calibrator.getTarget();
+
+    user_system_create();  // iniファイル読み込みを含むシステム生成
+
+    // キャリブレーション結果をLineMonitorに設定
+    gLineMonitor->setThreshold(targetBrightness);
 
     // 周期ハンドラ開始
     sta_cyc(CYC_CALIBRATOR);

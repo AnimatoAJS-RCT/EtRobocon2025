@@ -31,7 +31,7 @@ extern "C" {
 #endif /* STACK_SIZE */
 
 
-static bool IS_LEFT_COURSE = true; // Lコース
+extern bool IS_LEFT_COURSE; // Lコース
 
 /*
  *  関数のプロトタイプ宣言
