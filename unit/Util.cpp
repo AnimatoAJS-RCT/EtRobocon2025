@@ -60,7 +60,7 @@ eColor getColor(int hue, int saturation, int value) {
     if (value < 32) {  // 元のしきい値: 20
         return BLACK;
     }
-    if (saturation < 50) {  // 元のしきい値: saturation < 30, value > 80
+    if (saturation < 40) {  // 元のしきい値: saturation < 30, value > 80
         return WHITE;
     }
     if (hue < 20 || hue > 340) {

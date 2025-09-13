@@ -23,6 +23,7 @@ LineTracer::LineTracer(LineMonitor* lineMonitor, Walker* walker, int targetBrigh
   : mLineMonitor(lineMonitor),
     mWalker(walker),
     mTargetBrightness(targetBrightness),
+    mNormalizedTargetBrightness(targetBrightness),
     mPwm(pwm),
     mIsLeftEdge(isLeftEdge),
     mPidGain(pidGain),
@@ -57,6 +58,11 @@ void LineTracer::run()
 void LineTracer::setTargetBrightness(int targetBrightness)
 {
     mTargetBrightness = targetBrightness;
+}
+
+int LineTracer::getNormalizedTargetBrightness() const
+{
+    return mNormalizedTargetBrightness;
 }
 
 /**

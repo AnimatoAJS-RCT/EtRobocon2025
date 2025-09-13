@@ -14,7 +14,8 @@ private:
     int mLeftPwm;
     int mRightPwm;
     bool mIsInitialized;
-    static const double Kp;  // ゲイン
+    static const double Kp;                          // Pゲイン
+    static const double PWM_CORRECTION_LIMIT_RATIO;  // PWM補正値のクリッピング割合
 
     void execWalking();
 };

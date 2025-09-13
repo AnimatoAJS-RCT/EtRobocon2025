@@ -40,12 +40,14 @@ public:
 
     void run();
     void setTargetBrightness(int targetBrightness);
+    int getNormalizedTargetBrightness() const;
 
 private:
     LineMonitor *mLineMonitor;
     Walker *mWalker;
     int mTargetBrightness;
     int mPwm;
+    int mNormalizedTargetBrightness; // iniファイルから読み込んだ目標輝度(0-100)
     bool mIsLeftEdge;
     PidGain *mPidGain;
     bool mIsInitialized;

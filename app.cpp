@@ -345,21 +345,25 @@ static void user_system_destroy()
  */
 void main_task(intptr_t unused)
 {
-    // キャリブレーションを先に実行し、コース(L/R)を決定する
-    Calibrator calibrator(gColorSensor, gForceSensor);
-    calibrator.run();
-    int targetBrightness = calibrator.getTarget();
-
     user_system_create();  // iniファイル読み込みを含むシステム生成
 
-    // キャリブレーション結果をLineMonitorに設定
-    gLineMonitor->setThreshold(targetBrightness);
+    // キャリブレーションを実行し、コース(L/R)と輝度閾値を決定する
+    gCalibrator->run();
+    int black = gCalibrator->getBlack();
+    int white = gCalibrator->getWhite();
+    int targetBrightness = gCalibrator->getTarget();
 
-    // キャリブレーション結果をLineTracerに設定
+    // 各LineTracerの目標輝度をキャリブレーション結果に基づいて補正する
     for(auto tracer : tracerList) {
         LineTracer* lineTracer = dynamic_cast<LineTracer*>(tracer);
         if(lineTracer != nullptr) {
-            lineTracer->setTargetBrightness(gCalibrator->getTarget());
+            // iniファイルで設定された目標輝度(0-100)を、
+            // 実際の白黒値の範囲にスケーリングする
+            int normalizedTarget = lineTracer->getNormalizedTargetBrightness();
+            int scaledTarget = black + (white - black) * normalizedTarget / 100;
+            lineTracer->setTargetBrightness(scaledTarget);
+            printf("LineTracer target brightness updated: normalized=%d -> scaled=%d (black:%d, white:%d)\n",
+                   normalizedTarget, scaledTarget, black, white);
         }
     }
 

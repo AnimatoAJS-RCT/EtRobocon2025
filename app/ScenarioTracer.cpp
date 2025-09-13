@@ -4,6 +4,9 @@
 
 // 回転数差を補正するためのPゲイン
 const double ScenarioTracer::Kp = 0.05;
+// PWM補正値のクリッピング割合
+const double ScenarioTracer::PWM_CORRECTION_LIMIT_RATIO = 0.1;
+
 ScenarioTracer::ScenarioTracer(Walker* walker, int leftPwm, int rightPwm)
   : mWalker(walker), mLeftPwm(leftPwm), mRightPwm(rightPwm), mIsInitialized(false)
 {
@@ -65,6 +68,21 @@ void ScenarioTracer::execWalking()
     // error < 0 -> 右が回りすぎ -> 右を弱め、左を強める
     int correctedLeftPwm = mLeftPwm - static_cast<int>(correction);
     int correctedRightPwm = mRightPwm + static_cast<int>(correction);
+
+    // 補正後のPWM値が目標値から大きく外れないように、目標値の±10%の範囲にクリッピングする
+    // 1. 左右それぞれの変動幅（マージン）を計算
+    int leftMargin = static_cast<int>(std::abs(mLeftPwm) * PWM_CORRECTION_LIMIT_RATIO);
+    int rightMargin = static_cast<int>(std::abs(mRightPwm) * PWM_CORRECTION_LIMIT_RATIO);
+
+    // 2. 左右それぞれのPWM値の最小値と最大値を計算
+    int minLeftPwm = mLeftPwm - leftMargin;
+    int maxLeftPwm = mLeftPwm + leftMargin;
+    int minRightPwm = mRightPwm - rightMargin;
+    int maxRightPwm = mRightPwm + rightMargin;
+
+    // 3. 計算した範囲内にクリッピング
+    correctedLeftPwm = std::max(minLeftPwm, std::min(correctedLeftPwm, maxLeftPwm));
+    correctedRightPwm = std::max(minRightPwm, std::min(correctedRightPwm, maxRightPwm));
 
     printf("Correction: L/R Cnt=%d/%d, Err=%.1f, Corr=%.1f, PWM L/R=%d/%d -> %d/%d\n",
            leftCount, rightCount, error, correction, mLeftPwm, mRightPwm, correctedLeftPwm, correctedRightPwm);
