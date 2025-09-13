@@ -14,6 +14,7 @@ private:
     int mLeftPwm;
     int mRightPwm;
     bool mIsInitialized;
+    static const double Kp;  // ゲイン
 
     void execWalking();
 };
