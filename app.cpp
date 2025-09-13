@@ -37,7 +37,7 @@
 // https://github.com/ETrobocon/etroboEV3/wiki/problem_and_coping
 // void *__dso_handle=0;
 
-bool IS_LEFT_COURSE = true;  // Lコース。デフォルトはLコース。キャリブレーションで変更される。
+bool IS_LEFT_COURSE = false;  // Rコース。デフォルトはRコース。キャリブレーションで変更される。
 
 using namespace spikeapi;
 
@@ -100,9 +100,8 @@ void generateTracerList()
     printf("notsim\n");
     char iniPath[512];
     getcwd(iniPath, 512);  // カレントディレクトリ取得
-    // strcpy(iniPath, "/home/ajspi/work/RasPike-ART/sdk/workspace");
-    // Rコースの場合もleft.iniを読み込み、パラメータを反転させる
-    strcat(iniPath, "/tracer_2025_left.ini");  // カレントディレクトリ配下のiniを指定
+    // 常にright.iniを読み込み、Lコース選択時にパラメータを反転させる
+    strcat(iniPath, "/tracer_2025_right.ini");  // カレントディレクトリ配下のiniを指定
 
     printf("tracer.ini読み取り:%s\n", iniPath);
     FILE* file;
@@ -135,8 +134,8 @@ void generateTracerList()
             leftPwm = atof(spl[2].c_str());
             rightPwm = atof(spl[3].c_str());
 
-            // Rコースの場合、左右のPWMを入れ替える
-            if (!IS_LEFT_COURSE) {
+            // Lコースの場合、左右のPWMを入れ替える
+            if (IS_LEFT_COURSE) {
                 int tmp = leftPwm;
                 leftPwm = rightPwm;
                 rightPwm = tmp;
@@ -178,8 +177,8 @@ void generateTracerList()
             maxPwm = atof(spl[4].c_str());
             isLeftEdge = (strcmp(spl[5].c_str(), "LEFT_EDGE") == 0);
 
-            // Rコースの場合、エッジを反転させる
-            if (!IS_LEFT_COURSE) {
+            // Lコースの場合、エッジを反転させる
+            if (IS_LEFT_COURSE) {
                 isLeftEdge = !isLeftEdge;
             }
 

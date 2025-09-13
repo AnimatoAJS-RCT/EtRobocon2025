@@ -12,7 +12,7 @@ ScenarioTracer::ScenarioTracer(Walker* walker, int leftPwm, int rightPwm)
 
 void ScenarioTracer::run()
 {
-    printf("ScenarioTracer.run: mState = %d\n", mState);
+    //printf("ScenarioTracer.run: mState = %d\n", mState);
     switch(mState) {
         case UNDEFINED:
             if(!mIsInitialized) {
