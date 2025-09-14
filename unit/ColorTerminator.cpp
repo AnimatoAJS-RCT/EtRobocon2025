@@ -28,6 +28,6 @@ bool ColorTerminator::isToBeTerminate()
     spikeapi::ColorSensor::HSV hsv;
     mColorSensor->getHSV(hsv);
     eColor c = getColor(hsv.h, hsv.s, hsv.v);
-    printf("ColorTerminator::isToBeTerminate(): h=%u\ts=%u\tv=%u\tcolor=%s\n", hsv.h, hsv.s, hsv.v, colorToString(c));
+    //printf("ColorTerminator::isToBeTerminate(): h=%u\ts=%u\tv=%u\tcolor=%s\n", hsv.h, hsv.s, hsv.v, colorToString(c));
     return  c == mTermColor;
 }

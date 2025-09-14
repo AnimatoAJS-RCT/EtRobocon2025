@@ -306,6 +306,7 @@ void generateTracerList()
  */
 static void user_system_create()
 {
+
     // コース設定
     // IS_LEFT_COURSE はキャリブレーション時に設定する
 
@@ -314,8 +315,10 @@ static void user_system_create()
     gLineMonitor = new LineMonitor(gColorSensor);
     gStarter = new Starter(gForceSensor);
     gCalibrator = new Calibrator(gColorSensor, gForceSensor);
-    // gPidGain = new PidGain(0.7, 0.1, 0.6);
-    // gLineTracer = new LineTracer(gLineMonitor, gWalker, 50, 50, true, gPidGain);
+
+    // キャリブレーションを実行し、コース(L/R)と輝度閾値を決定する
+    gCalibrator->run();
+
     generateTracerList();
 
     // 初期化完了通知
@@ -345,13 +348,13 @@ static void user_system_destroy()
  */
 void main_task(intptr_t unused)
 {
-    user_system_create();  // iniファイル読み込みを含むシステム生成
+    // 標準出力をバッファリングしないように設定
+    setbuf(stdout, NULL);
 
-    // キャリブレーションを実行し、コース(L/R)と輝度閾値を決定する
-    gCalibrator->run();
+    user_system_create();  // iniファイル読み込みを含むシステム生成
+    
     int black = gCalibrator->getBlack();
     int white = gCalibrator->getWhite();
-    int targetBrightness = gCalibrator->getTarget();
 
     // 各LineTracerの目標輝度をキャリブレーション結果に基づいて補正する
     for(auto tracer : tracerList) {

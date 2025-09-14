@@ -5,7 +5,7 @@
 // 回転数差を補正するためのPゲイン
 const double ScenarioTracer::Kp = 0.05;
 // PWM補正値のクリッピング割合
-const double ScenarioTracer::PWM_CORRECTION_LIMIT_RATIO = 0.1;
+const double ScenarioTracer::PWM_CORRECTION_LIMIT_RATIO = 0.2;
 
 ScenarioTracer::ScenarioTracer(Walker* walker, int leftPwm, int rightPwm)
   : mWalker(walker), mLeftPwm(leftPwm), mRightPwm(rightPwm), mIsInitialized(false)
